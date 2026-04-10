@@ -1,23 +1,11 @@
 /* eslint-disable */
 import { createClient } from '@supabase/supabase-js';
-const supabase = createClient('https://xstrugwgpozoipgjjspy.supabase.co', 'sb_publishable_vSdEcWognHjuLuAnjJHq3A_C_zwP6W0');
-
 import { useState, useRef, useEffect } from "react";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// SHARED DATA
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const EQUIPOS_DATA = [
-  { id:"MT-001", codigo:"MT99", tipo:"Montacargas", marca:"Toyota", modelo:"8FGU25", serie:"8FGU25-12345", capacidad:"2,500 kg", altura:"5.5 m", año:2021, horas_uso:1240, horas_vida_util:12000, estado:"disponible", ubicacion:"Bodega Central", costo_adquisicion:38500, inversion_total:41200, ultimo_mantenimiento:"2024-11-15", proximo_mant_fecha:"2025-06-01", proximo_mant_horas:1350, estado_tecnico:"bueno" },
-  { id:"MT-002", codigo:"GR45", tipo:"Grúa", marca:"Liebherr", modelo:"LTM 1045", serie:"LTM1045-98761", capacidad:"45 ton", altura:"38 m", año:2020, horas_uso:3100, horas_vida_util:20000, estado:"renta", ubicacion:"Cliente: Constructora Ríos", costo_adquisicion:185000, inversion_total:197400, ultimo_mantenimiento:"2024-12-10", proximo_mant_fecha:"2025-04-20", proximo_mant_horas:3180, estado_tecnico:"bueno" },
-  { id:"MT-003", codigo:"EL22", tipo:"Elevador", marca:"JLG", modelo:"450AJ", serie:"450AJ-55678", capacidad:"230 kg", altura:"13.7 m", año:2022, horas_uso:890, horas_vida_util:10000, estado:"mantenimiento", ubicacion:"Taller Montasa", costo_adquisicion:52000, inversion_total:54100, ultimo_mantenimiento:"2025-04-01", proximo_mant_fecha:"2025-06-01", proximo_mant_horas:1020, estado_tecnico:"en_reparacion" },
-  { id:"MT-004", codigo:"MT55", tipo:"Montacargas", marca:"Hyster", modelo:"H5.5FT", serie:"H55FT-24891", capacidad:"5,500 kg", altura:"3.0 m", año:2019, horas_uso:4820, horas_vida_util:12000, estado:"detenido", ubicacion:"Bodega Norte", costo_adquisicion:48000, inversion_total:55300, ultimo_mantenimiento:"2025-01-05", proximo_mant_fecha:"2025-04-05", proximo_mant_horas:4950, estado_tecnico:"critico", razon_detencion:"Esperando repuesto de transmisión - ETA: 20 Abr" },
-  { id:"MT-005", codigo:"CM12", tipo:"Camión", marca:"Mercedes-Benz", modelo:"Actros 2545", serie:"MB2545-10023", capacidad:"15 ton", altura:"—", año:2021, horas_uso:62000, horas_vida_util:300000, estado:"reparacion", ubicacion:"Taller Externo - AutoFix", costo_adquisicion:95000, inversion_total:101200, ultimo_mantenimiento:"2025-04-02", proximo_mant_fecha:"2025-05-15", proximo_mant_horas:63000, estado_tecnico:"en_reparacion" },
-  { id:"MT-006", codigo:"MT33", tipo:"Montacargas", marca:"Crown", modelo:"FC5200", serie:"FC5200-77432", capacidad:"3,000 kg", altura:"6.0 m", año:2020, horas_uso:5600, horas_vida_util:12000, estado:"vendido", ubicacion:"—", costo_adquisicion:31000, inversion_total:33000, ultimo_mantenimiento:"2024-10-01", proximo_mant_fecha:"—", proximo_mant_horas:0, estado_tecnico:"bueno" },
-  { id:"MT-007", codigo:"EL44", tipo:"Elevador", marca:"JLG", modelo:"660SJ", serie:"660SJ-33421", capacidad:"230 kg", altura:"20 m", año:2023, horas_uso:320, horas_vida_util:10000, estado:"disponible", ubicacion:"Bodega Central", costo_adquisicion:68000, inversion_total:68000, ultimo_mantenimiento:"2025-02-01", proximo_mant_fecha:"2025-08-01", proximo_mant_horas:470, estado_tecnico:"bueno" },
-  { id:"MT-008", codigo:"GR20", tipo:"Grúa", marca:"Grove", modelo:"RT530E", serie:"GRT530-88901", capacidad:"30 ton", altura:"32 m", año:2022, horas_uso:1100, horas_vida_util:20000, estado:"disponible", ubicacion:"Bodega Central", costo_adquisicion:145000, inversion_total:146200, ultimo_mantenimiento:"2025-03-15", proximo_mant_fecha:"2025-07-15", proximo_mant_horas:1300, estado_tecnico:"bueno" },
-];
+const supabase = createClient(
+  'https://xstrugwgpozoipgjjspy.supabase.co',
+  'sb_publishable_vSdEcWognHjuLuAnjJHq3A_C_zwP6W0'
+);
 
 const RENTAS_DATA = [
   { id:"RNT-001", estado:"activa", cliente:"Constructora Ríos S.A.", contacto:"Ing. Mario Soto", tel:"+504 9876-5432", equipo_codigo:"GR45", equipo_desc:"Grúa Liebherr LTM 1045", cotizacion:"COT-2025-001", fecha_inicio:"2025-03-01", fecha_fin:"2025-04-30", tipo_cobro:"mensual", valor:4500, pagos:[{mes:"Marzo",monto:4500,estado:"pagado",fecha_pago:"2025-03-01"},{mes:"Abril",monto:4500,estado:"pendiente",vence:"2025-04-01"}], cobros_extra:[] },
@@ -54,17 +42,15 @@ const SUGERENCIAS_DATA = [
   { id:"S003", de:"Andrea Flores", rol:"Ventas", fecha:"2025-04-06", texto:"Clientes preguntan si incluimos operadores certificados. Podría ser diferenciador vs competencia.", leida:true, prioridad:"media" },
 ];
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// HELPERS & CONFIG
-// ═══════════════════════════════════════════════════════════════════════════════
-
 const STATUS_CFG = {
   disponible:    { label:"Disponible",    color:"#00E5A0", icon:"✅" },
-  renta:         { label:"En Renta",      color:"#3B9EFF", icon:"📋" },
+  en_renta:      { label:"En Renta",      color:"#3B9EFF", icon:"📋" },
   mantenimiento: { label:"Mantenimiento", color:"#FFB930", icon:"🔧" },
   detenido:      { label:"Detenido",      color:"#FF6B35", icon:"⚠️" },
   reparacion:    { label:"Por Reparar",   color:"#FF3B8B", icon:"🛠️" },
   vendido:       { label:"Vendido",       color:"#5A6070", icon:"💼" },
+  inactivo:      { label:"Inactivo",      color:"#5A6070", icon:"⛔" },
+  desconocido:   { label:"Sin estado",    color:"#353840", icon:"❓" },
 };
 
 const EST_TEC = {
@@ -74,10 +60,10 @@ const EST_TEC = {
 };
 
 const IND_CFG = {
-  constructora:{ label:"Constructora",    color:"#FF6B35", icon:"🏗️" },
-  logistica:   { label:"Almacén/Log.",    color:"#3B9EFF", icon:"📦" },
-  zonafranca:  { label:"Zona Franca",     color:"#00E5A0", icon:"🏭" },
-  otro:        { label:"Otro",            color:"#8A8FA0", icon:"🏢" },
+  constructora:{ label:"Constructora", color:"#FF6B35", icon:"🏗️" },
+  logistica:   { label:"Almacén/Log.", color:"#3B9EFF", icon:"📦" },
+  zonafranca:  { label:"Zona Franca",  color:"#00E5A0", icon:"🏭" },
+  otro:        { label:"Otro",         color:"#8A8FA0", icon:"🏢" },
 };
 
 const NAV = [
@@ -94,11 +80,7 @@ const fmt = n => `$${Number(n||0).toLocaleString("en-US")}`;
 const dDesde = f => f ? Math.floor((new Date()-new Date(f))/864e5) : 999;
 const dHasta = f => f&&f!=="—" ? Math.ceil((new Date(f)-new Date())/864e5) : null;
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// ELSA FLOATING
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function ElsaFloat({ mod }) {
+function ElsaFloat({ mod, equiposCount }) {
   const [open,setOpen]=useState(false);
   const [msgs,setMsgs]=useState([]);
   const [inp,setInp]=useState("");
@@ -108,18 +90,10 @@ function ElsaFloat({ mod }) {
 
   useEffect(()=>{
     if(open&&msgs.length===0){
-      const bienvenidas={
-        dashboard:`¡Hola! Soy **ELSA** 🤖 Hay **${criticas} alertas críticas** hoy. ¿Qué resolvemos primero?`,
-        flota:`¡Hola! Soy **ELSA** 🤖 Hay **${EQUIPOS_DATA.filter(e=>e.estado==="disponible").length} equipos disponibles** ahora. ¿Agrego uno o consulto algo?`,
-        mantenimiento:`¡Hola! Soy **ELSA** 🤖 **MT55** y **EL22** necesitan atención urgente. ¿Empezamos?`,
-        rentas:`¡Hola! Soy **ELSA** 🤖 Hay un **pago vencido** de Zona Franca ($425). ¿Lo registramos?`,
-        crm:`¡Hola! Soy **ELSA** 🤖 **Almacenes La Fe** lleva 84 días sin contacto. ¿Lo agendamos?`,
-        seguimiento:`¡Hola! Soy **ELSA** 🤖 **INGCA ($22,500)** lleva 48h sin seguimiento. ¿Contactamos ahora?`,
-      };
-      setMsgs([{role:"assistant",content:bienvenidas[mod]||"¡Hola! Soy **ELSA** 🤖 ¿En qué te ayudo?"}]);
+      setMsgs([{role:"assistant",content:`¡Hola! Soy **ELSA** 🤖 Estás en **${NAV.find(n=>n.id===mod)?.label}**. Tenés **${equiposCount} equipos reales** en Supabase. ¿En qué te ayudo?`}]);
     }
     if(open&&ref.current) setTimeout(()=>{ref.current.scrollTop=ref.current.scrollHeight;},100);
-  },[open,mod]);
+  },[open,mod,equiposCount]);
 
   useEffect(()=>{ if(ref.current) ref.current.scrollTop=ref.current.scrollHeight; },[msgs]);
 
@@ -129,9 +103,7 @@ function ElsaFloat({ mod }) {
     try {
       const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
         model:"claude-sonnet-4-20250514",max_tokens:1000,
-        system:`Eres ELSA, asistente IA de Montasa Handling Co. Módulo activo: ${mod}.
-Contexto: ${EQUIPOS_DATA.filter(e=>e.estado==="disponible").length} equipos disponibles, ${EQUIPOS_DATA.filter(e=>e.estado==="renta").length} en renta. MT55 y EL22 críticos. Pago vencido Zona Franca $425. Pipeline $${OPPS_DATA.reduce((s,o)=>s+o.valor,0).toLocaleString()}.
-Responde en español, máximo 80 palabras, usa emojis. Sé proactiva y práctica.`,
+        system:`Eres ELSA, asistente IA de Montasa Handling Co. Módulo: ${mod}. Flota real: ${equiposCount} equipos en Supabase. Responde en español, máx 80 palabras, usa emojis.`,
         messages:nuevos.map(m=>({role:m.role,content:m.content})),
       })});
       const d=await res.json();
@@ -149,7 +121,7 @@ Responde en español, máximo 80 palabras, usa emojis. Sé proactiva y práctica
           <div style={{padding:"10px 12px",borderBottom:"1px solid #1E2230",background:"#0E1018",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
             <div style={{display:"flex",alignItems:"center",gap:6}}>
               <div style={{width:24,height:24,borderRadius:"50%",background:"linear-gradient(135deg,#FFB930,#FF3B8B)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>🤖</div>
-              <div><div style={{fontSize:12,fontWeight:800}}>ELSA</div><div style={{fontSize:9,color:"#353840"}}>{NAV.find(n=>n.id===mod)?.label}</div></div>
+              <div><div style={{fontSize:12,fontWeight:800}}>ELSA</div><div style={{fontSize:9,color:"#353840"}}>{equiposCount} equipos · Supabase ✅</div></div>
             </div>
             <button onClick={()=>setOpen(false)} style={{background:"none",border:"none",color:"#5A6070",fontSize:15,cursor:"pointer"}}>✕</button>
           </div>
@@ -168,29 +140,26 @@ Responde en español, máximo 80 palabras, usa emojis. Sé proactiva y práctica
           </div>
         </div>
       )}
-      <button onClick={()=>setOpen(!open)} style={{position:"fixed",bottom:18,right:18,width:50,height:50,borderRadius:"50%",background:"linear-gradient(135deg,#FFB930,#FF6B35,#FF3B8B)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,boxShadow:criticas>0?"0 0 0 8px #FF6B3518,0 4px 20px #FF6B3540":"0 4px 20px #FF6B3540",zIndex:1001,animation:criticas>0?"elsaPulse 2s ease-in-out infinite":"none"}}>🤖</button>
+      <button onClick={()=>setOpen(!open)} style={{position:"fixed",bottom:18,right:18,width:50,height:50,borderRadius:"50%",background:"linear-gradient(135deg,#FFB930,#FF6B35,#FF3B8B)",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,boxShadow:"0 4px 20px #FF6B3540",zIndex:1001,animation:criticas>0?"elsaPulse 2s ease-in-out infinite":"none"}}>🤖</button>
     </>
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MODULES
-// ═══════════════════════════════════════════════════════════════════════════════
-
-function Dashboard({navigate}) {
+function Dashboard({navigate, equipos}) {
   const ingresos=RENTAS_DATA.filter(r=>r.estado==="activa").reduce((s,r)=>s+r.valor,0);
   const pipeline=OPPS_DATA.reduce((s,o)=>s+o.valor,0);
   const alertasTotal=ALERTAS_DATA.filter(a=>["critico","urgente"].includes(a.tipo)).length;
+  const disponibles=equipos.filter(e=>e.estado==="disponible").length;
 
   return (
     <div style={{padding:"16px",overflowY:"auto",flex:1}}>
       <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10,marginBottom:16}}>
         {[
           {label:"Ingresos/mes",val:fmt(ingresos),color:"#00E5A0",icon:"💰",nav:"rentas"},
-          {label:"Disponibles",val:EQUIPOS_DATA.filter(e=>e.estado==="disponible").length,color:"#3B9EFF",icon:"🏗️",nav:"flota"},
+          {label:"Disponibles",val:disponibles,color:"#3B9EFF",icon:"🏗️",nav:"flota"},
           {label:"Pipeline",val:fmt(pipeline),color:"#FFB930",icon:"🎯",nav:"seguimiento"},
           {label:"Alertas",val:alertasTotal,color:"#FF4444",icon:"🚨",nav:"mantenimiento"},
-          {label:"Clientes activos",val:CLIENTES_DATA.filter(c=>c.estado==="activo").length,color:"#FF3B8B",icon:"👥",nav:"crm"},
+          {label:"Total Flota",val:equipos.length,color:"#FF3B8B",icon:"📊",nav:"flota"},
         ].map((k,i)=>(
           <div key={i} onClick={()=>navigate(k.nav)} style={{background:"#0C0E14",border:`1px solid ${k.color}20`,borderRadius:10,padding:"12px 14px",borderTop:`3px solid ${k.color}`,cursor:"pointer"}}>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><div style={{fontSize:9,color:"#5A6070",textTransform:"uppercase",letterSpacing:"0.08em"}}>{k.label}</div><span style={{fontSize:15}}>{k.icon}</span></div>
@@ -198,7 +167,6 @@ function Dashboard({navigate}) {
           </div>
         ))}
       </div>
-
       <div style={{display:"grid",gridTemplateColumns:"1fr 240px",gap:12,marginBottom:12}}>
         <div style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:10,overflow:"hidden"}}>
           <div style={{padding:"11px 14px",borderBottom:"1px solid #12151C",fontSize:12,fontWeight:800}}>🚨 Centro de Alertas</div>
@@ -211,17 +179,20 @@ function Dashboard({navigate}) {
           ))}
         </div>
         <div style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:10,overflow:"hidden"}}>
-          <div style={{padding:"11px 14px",borderBottom:"1px solid #12151C",fontSize:12,fontWeight:800}}>🏗️ Estado Flota</div>
+          <div style={{padding:"11px 14px",borderBottom:"1px solid #12151C"}}>
+            <div style={{fontSize:12,fontWeight:800}}>🏗️ Estado Flota</div>
+            <div style={{fontSize:10,color:"#00E5A0",marginTop:2}}>✅ {equipos.length} equipos · Supabase</div>
+          </div>
           <div style={{padding:"12px"}}>
             {Object.entries(STATUS_CFG).map(([k,v])=>{
-              const c=EQUIPOS_DATA.filter(e=>e.estado===k).length;
+              const c=equipos.filter(e=>e.estado===k).length;
               if(!c) return null;
               return (
                 <div key={k} onClick={()=>navigate("flota")} style={{display:"flex",alignItems:"center",gap:7,marginBottom:7,cursor:"pointer"}}>
                   <span style={{fontSize:12}}>{v.icon}</span>
                   <div style={{flex:1}}>
                     <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:10,color:"#8A8FA0"}}>{v.label}</span><span style={{fontSize:11,fontWeight:700,color:v.color}}>{c}</span></div>
-                    <div style={{height:3,background:"#12151C",borderRadius:2}}><div style={{width:`${(c/EQUIPOS_DATA.length)*100}%`,height:"100%",background:v.color,borderRadius:2}}/></div>
+                    <div style={{height:3,background:"#12151C",borderRadius:2}}><div style={{width:`${(c/equipos.length)*100}%`,height:"100%",background:v.color,borderRadius:2}}/></div>
                   </div>
                 </div>
               );
@@ -229,7 +200,6 @@ function Dashboard({navigate}) {
           </div>
         </div>
       </div>
-
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
         <div style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:10,overflow:"hidden"}}>
           <div onClick={()=>navigate("rentas")} style={{padding:"11px 14px",borderBottom:"1px solid #12151C",display:"flex",justifyContent:"space-between",cursor:"pointer"}}><div style={{fontSize:12,fontWeight:800}}>📋 Rentas Activas</div><span style={{fontSize:10,color:"#3B9EFF",fontWeight:700}}>{fmt(ingresos)}/mes →</span></div>
@@ -260,47 +230,165 @@ function Dashboard({navigate}) {
 }
 
 function Flota() {
+  const [equipos,setEquipos]=useState([]);
+  const [loading,setLoading]=useState(true);
   const [sel,setSel]=useState(null);
   const [filtro,setFiltro]=useState("todos");
   const [search,setSearch]=useState("");
-  const eq=sel?EQUIPOS_DATA.find(e=>e.id===sel):null;
-  const filtered=EQUIPOS_DATA.filter(e=>(filtro==="todos"||e.estado===filtro)&&(!search||[e.codigo,e.tipo,e.marca,e.modelo].some(v=>v.toLowerCase().includes(search.toLowerCase()))));
+  const [showForm,setShowForm]=useState(false);
+  const [guardando,setGuardando]=useState(false);
+  const [form,setForm]=useState({codigo:"",marca:"",tipo_equipo:"",modelo:"",serie:"",año:"",combustible:"DIESEL",capacidad_kg:"",capacidad_elevacion_m:"",estado:"disponible",ubicacion:"",observaciones:"",costo_adquisicion:"",estado_tecnico:"bueno"});
+
+  useEffect(()=>{ cargarEquipos(); },[]);
+
+  const cargarEquipos = async () => {
+    setLoading(true);
+    const {data,error} = await supabase.from('equipos').select('*').order('codigo');
+    if (!error && data) setEquipos(data);
+    setLoading(false);
+  };
+
+  const guardarEquipo = async () => {
+    if(!form.codigo||!form.marca) return alert("Código y marca son requeridos");
+    setGuardando(true);
+    const payload = {
+      ...form,
+      año:form.año?parseInt(form.año):null,
+      capacidad_kg:form.capacidad_kg?parseFloat(form.capacidad_kg):null,
+      capacidad_elevacion_m:form.capacidad_elevacion_m?parseFloat(form.capacidad_elevacion_m):null,
+      costo_adquisicion:form.costo_adquisicion?parseFloat(form.costo_adquisicion):null,
+      inversion_total:form.costo_adquisicion?parseFloat(form.costo_adquisicion):null
+    };
+    const {error} = await supabase.from('equipos').insert([payload]);
+    if (!error) {
+      await cargarEquipos();
+      setShowForm(false);
+      setForm({codigo:"",marca:"",tipo_equipo:"",modelo:"",serie:"",año:"",combustible:"DIESEL",capacidad_kg:"",capacidad_elevacion_m:"",estado:"disponible",ubicacion:"",observaciones:"",costo_adquisicion:"",estado_tecnico:"bueno"});
+    } else {
+      alert("Error al guardar: " + error.message);
+    }
+    setGuardando(false);
+  };
+
+  const eq=sel?equipos.find(e=>e.id===sel):null;
+  const filtered=equipos.filter(e=>(filtro==="todos"||e.estado===filtro)&&(!search||[e.codigo,e.tipo_equipo,e.marca,e.modelo].filter(Boolean).some(v=>v.toLowerCase().includes(search.toLowerCase()))));
 
   return (
-    <div style={{display:"flex",flex:1,overflow:"hidden"}}>
+    <div style={{display:"flex",flex:1,overflow:"hidden",position:"relative"}}>
+      {showForm&&(
+        <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"#06080Dcc",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center",backdropFilter:"blur(4px)"}}>
+          <div style={{background:"#0E1018",border:"1px solid #1E2230",borderRadius:14,padding:"24px",width:520,maxHeight:"85vh",overflowY:"auto"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+              <div style={{fontSize:15,fontWeight:800}}>➕ Nuevo Equipo</div>
+              <button onClick={()=>setShowForm(false)} style={{background:"none",border:"none",color:"#5A6070",fontSize:18,cursor:"pointer"}}>✕</button>
+            </div>
+            {[
+              {l:"Código * (ej: MT-50)",k:"codigo",t:"text"},{l:"Marca *",k:"marca",t:"text"},
+              {l:"Tipo de Equipo",k:"tipo_equipo",t:"text"},{l:"Modelo",k:"modelo",t:"text"},
+              {l:"N° Serie",k:"serie",t:"text"},{l:"Año",k:"año",t:"number"},
+              {l:"Combustible",k:"combustible",t:"select",ops:["DIESEL","ELÉCTRICO","DUAL","GAS"]},
+              {l:"Capacidad (kg)",k:"capacidad_kg",t:"number"},{l:"Altura máx. (m)",k:"capacidad_elevacion_m",t:"number"},
+              {l:"Estado",k:"estado",t:"select",ops:["disponible","en_renta","mantenimiento","detenido","reparacion","inactivo"]},
+              {l:"Estado Técnico",k:"estado_tecnico",t:"select",ops:["bueno","en_reparacion","critico"]},
+              {l:"Ubicación",k:"ubicacion",t:"text"},{l:"Costo Adquisición ($)",k:"costo_adquisicion",t:"number"},
+              {l:"Observaciones",k:"observaciones",t:"textarea"},
+            ].map((f,i)=>(
+              <div key={i} style={{marginBottom:10}}>
+                <div style={{fontSize:10,color:"#5A6070",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:4}}>{f.l}</div>
+                {f.t==="select"?(
+                  <select value={form[f.k]} onChange={e=>setForm({...form,[f.k]:e.target.value})} style={{width:"100%",background:"#141720",border:"1px solid #1E2230",borderRadius:7,padding:"8px 10px",color:"#D4D8E8",fontSize:12,outline:"none"}}>
+                    {f.ops.map(o=><option key={o} value={o}>{o}</option>)}
+                  </select>
+                ):f.t==="textarea"?(
+                  <textarea value={form[f.k]} onChange={e=>setForm({...form,[f.k]:e.target.value})} rows={2} style={{width:"100%",boxSizing:"border-box",background:"#141720",border:"1px solid #1E2230",borderRadius:7,padding:"8px 10px",color:"#D4D8E8",fontSize:12,outline:"none",resize:"none"}}/>
+                ):(
+                  <input type={f.t} value={form[f.k]} onChange={e=>setForm({...form,[f.k]:e.target.value})} style={{width:"100%",boxSizing:"border-box",background:"#141720",border:"1px solid #1E2230",borderRadius:7,padding:"8px 10px",color:"#D4D8E8",fontSize:12,outline:"none"}}/>
+                )}
+              </div>
+            ))}
+            <div style={{display:"flex",gap:8,marginTop:12}}>
+              <button onClick={()=>setShowForm(false)} style={{flex:1,padding:"10px",borderRadius:8,border:"1px solid #1E2230",background:"transparent",color:"#5A6070",fontSize:12,cursor:"pointer"}}>Cancelar</button>
+              <button onClick={guardarEquipo} disabled={guardando} style={{flex:2,padding:"10px",borderRadius:8,border:"none",background:"linear-gradient(135deg,#00E5A0,#3B9EFF)",color:"#06080D",fontSize:12,fontWeight:800,cursor:"pointer"}}>
+                {guardando?"Guardando...":"✅ Guardar en Supabase →"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{width:270,borderRight:"1px solid #12151C",display:"flex",flexDirection:"column",background:"#080A10"}}>
         <div style={{padding:"10px 12px",borderBottom:"1px solid #12151C"}}>
           <input placeholder="🔍 Buscar..." value={search} onChange={e=>setSearch(e.target.value)} style={{width:"100%",boxSizing:"border-box",background:"#12151C",border:"1px solid #1E2230",borderRadius:7,padding:"7px 10px",color:"#D4D8E8",fontSize:11,outline:"none",marginBottom:7}}/>
-          <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+          <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:7}}>
             {["todos",...Object.keys(STATUS_CFG)].map(f=>{const cfg=f==="todos"?{color:"#D4D8E8",label:"Todos"}:STATUS_CFG[f];return <button key={f} onClick={()=>setFiltro(f)} style={{padding:"2px 7px",borderRadius:20,fontSize:9,border:"none",cursor:"pointer",background:filtro===f?cfg.color:"#12151C",color:filtro===f?"#06080D":"#5A6070",fontWeight:filtro===f?800:400}}>{cfg.label||"Todos"}</button>;})}
           </div>
+          <button onClick={()=>setShowForm(true)} style={{width:"100%",padding:"7px",borderRadius:7,border:"none",background:"linear-gradient(135deg,#00E5A0,#3B9EFF)",color:"#06080D",fontSize:11,fontWeight:800,cursor:"pointer"}}>+ Agregar Equipo</button>
         </div>
         <div style={{flex:1,overflowY:"auto"}}>
-          {filtered.map(e=>{const st=STATUS_CFG[e.estado];const isSel=sel===e.id;return(
-            <div key={e.id} onClick={()=>setSel(e.id)} style={{padding:"10px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?st.color:"transparent"}`}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontSize:12,fontWeight:700}}>{e.codigo}</div><div style={{fontSize:10,color:"#5A6070"}}>{e.marca} {e.modelo}</div><div style={{fontSize:10,color:"#353840"}}>{e.tipo} · {e.capacidad}</div></div><span style={{fontSize:9,fontWeight:700,color:st.color,background:`${st.color}15`,border:`1px solid ${st.color}30`,borderRadius:20,padding:"2px 6px",whiteSpace:"nowrap"}}>{st.icon} {st.label}</span></div>
-            </div>
-          );})}
+          {loading?(
+            <div style={{padding:"20px",textAlign:"center",color:"#5A6070",fontSize:11}}>⏳ Cargando equipos desde Supabase...</div>
+          ):filtered.length===0?(
+            <div style={{padding:"20px",textAlign:"center",color:"#5A6070",fontSize:11}}>Sin resultados</div>
+          ):filtered.map(e=>{
+            const st=STATUS_CFG[e.estado]||{color:"#5A6070",label:e.estado||"—",icon:"❓"};
+            const isSel=sel===e.id;
+            return (
+              <div key={e.id} onClick={()=>setSel(e.id)} style={{padding:"10px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?st.color:"transparent"}`}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                  <div>
+                    <div style={{fontSize:12,fontWeight:700}}>{e.codigo||"Sin código"}</div>
+                    <div style={{fontSize:10,color:"#5A6070"}}>{e.marca} {e.modelo}</div>
+                    <div style={{fontSize:10,color:"#353840"}}>{e.tipo_equipo}{e.capacidad_kg?` · ${e.capacidad_kg.toLocaleString()} kg`:""}</div>
+                  </div>
+                  <span style={{fontSize:9,fontWeight:700,color:st.color,background:`${st.color}15`,border:`1px solid ${st.color}30`,borderRadius:20,padding:"2px 6px",whiteSpace:"nowrap"}}>{st.icon} {st.label}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{padding:"7px 12px",borderTop:"1px solid #12151C",background:"#080A10",fontSize:9,color:"#5A6070",textAlign:"center"}}>
+          {filtered.length} de {equipos.length} equipos · Supabase ✅
         </div>
       </div>
+
       <div style={{flex:1,overflowY:"auto",padding:"18px"}}>
-        {!eq?(<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:"#1E2230"}}><div style={{fontSize:48}}>🏗️</div><div style={{fontSize:13,fontWeight:700,marginTop:10,color:"#2A2D3A"}}>Selecciona un equipo</div></div>):(
+        {!eq?(
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:"#1E2230"}}>
+            <div style={{fontSize:48}}>🏗️</div>
+            <div style={{fontSize:13,fontWeight:700,marginTop:10,color:"#2A2D3A"}}>Selecciona un equipo</div>
+            <div style={{fontSize:11,color:"#1E2230",marginTop:4}}>{equipos.length} equipos reales · Supabase ✅</div>
+          </div>
+        ):(
           <div>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:16}}>
-              <div><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><h2 style={{margin:0,fontSize:18,fontWeight:800}}>{eq.codigo}</h2><span style={{fontSize:9,fontWeight:700,color:STATUS_CFG[eq.estado].color,background:`${STATUS_CFG[eq.estado].color}15`,borderRadius:20,padding:"3px 9px"}}>{STATUS_CFG[eq.estado].icon} {STATUS_CFG[eq.estado].label}</span><span style={{fontSize:9,fontWeight:700,color:EST_TEC[eq.estado_tecnico]?.color,background:`${EST_TEC[eq.estado_tecnico]?.color}15`,borderRadius:20,padding:"3px 9px"}}>{EST_TEC[eq.estado_tecnico]?.icon} {EST_TEC[eq.estado_tecnico]?.label}</span></div><div style={{fontSize:11,color:"#5A6070"}}>{eq.tipo} · {eq.marca} {eq.modelo} · {eq.serie}</div></div>
-              <div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#5A6070"}}>Inversión Total</div><div style={{fontSize:20,fontWeight:800,color:"#FFB930"}}>{fmt(eq.inversion_total)}</div></div>
+              <div>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                  <h2 style={{margin:0,fontSize:18,fontWeight:800}}>{eq.codigo}</h2>
+                  {eq.estado&&<span style={{fontSize:9,fontWeight:700,color:(STATUS_CFG[eq.estado]||{color:"#5A6070"}).color,background:`${(STATUS_CFG[eq.estado]||{color:"#5A6070"}).color}15`,borderRadius:20,padding:"3px 9px"}}>{(STATUS_CFG[eq.estado]||{icon:"❓",label:eq.estado}).icon} {(STATUS_CFG[eq.estado]||{label:eq.estado}).label}</span>}
+                  {eq.estado_tecnico&&EST_TEC[eq.estado_tecnico]&&<span style={{fontSize:9,fontWeight:700,color:EST_TEC[eq.estado_tecnico].color,background:`${EST_TEC[eq.estado_tecnico].color}15`,borderRadius:20,padding:"3px 9px"}}>{EST_TEC[eq.estado_tecnico].icon} {EST_TEC[eq.estado_tecnico].label}</span>}
+                </div>
+                <div style={{fontSize:11,color:"#5A6070"}}>{eq.tipo_equipo} · {eq.marca} {eq.modelo}</div>
+                {eq.serie&&<div style={{fontSize:10,color:"#353840"}}>Serie: {eq.serie}</div>}
+              </div>
+              <div style={{textAlign:"right"}}>
+                {eq.costo_adquisicion&&<><div style={{fontSize:10,color:"#5A6070"}}>Costo Adquisición</div><div style={{fontSize:18,fontWeight:800,color:"#FFB930"}}>{fmt(eq.costo_adquisicion)}</div></>}
+              </div>
             </div>
-            {eq.razon_detencion&&<div style={{background:"#FF6B3510",border:"1px solid #FF6B3530",borderRadius:8,padding:"9px 13px",marginBottom:12,fontSize:11,color:"#FF6B35"}}>⚠️ {eq.razon_detencion}</div>}
+            {eq.observaciones&&<div style={{background:"#FFB93010",border:"1px solid #FFB93030",borderRadius:8,padding:"9px 13px",marginBottom:12,fontSize:11,color:"#FFB930"}}>📝 {eq.observaciones}</div>}
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9,marginBottom:14}}>
-              {[{l:"Capacidad",v:eq.capacidad},{l:"Altura",v:eq.altura},{l:"Año",v:eq.año},{l:"Horas Uso",v:`${eq.horas_uso.toLocaleString()} h`},{l:"Ubicación",v:eq.ubicacion},{l:"Último Mant.",v:eq.ultimo_mantenimiento}].map((f,i)=>(
-                <div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}><div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{f.l}</div><div style={{fontSize:12,fontWeight:600}}>{f.v}</div></div>
+              {[
+                {l:"Capacidad",v:eq.capacidad_kg?`${eq.capacidad_kg.toLocaleString()} kg`:"—"},
+                {l:"Altura máx.",v:eq.capacidad_elevacion_m?`${eq.capacidad_elevacion_m} m`:"—"},
+                {l:"Combustible",v:eq.combustible||"—"},
+                {l:"Año",v:eq.año||"—"},
+                {l:"Ubicación",v:eq.ubicacion||"—"},
+                {l:"Estado técnico",v:eq.estado_tecnico||"—"},
+              ].map((f,i)=>(
+                <div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}>
+                  <div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{f.l}</div>
+                  <div style={{fontSize:12,fontWeight:600}}>{f.v}</div>
+                </div>
               ))}
-            </div>
-            <div style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"12px 14px"}}>
-              <div style={{fontSize:10,color:"#5A6070",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:6}}>Vida Útil</div>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"#5A6070",marginBottom:4}}><span>{eq.horas_uso.toLocaleString()} h</span><span>{eq.horas_vida_util.toLocaleString()} h</span></div>
-              <div style={{height:6,background:"#12151C",borderRadius:3,overflow:"hidden"}}><div style={{width:`${Math.min((eq.horas_uso/eq.horas_vida_util)*100,100)}%`,height:"100%",background:(eq.horas_uso/eq.horas_vida_util)>0.8?"#FF4444":"#00E5A0",borderRadius:3}}/></div>
-              <div style={{fontSize:10,color:"#5A6070",marginTop:3}}>{((eq.horas_uso/eq.horas_vida_util)*100).toFixed(1)}% vida útil consumida</div>
             </div>
           </div>
         )}
@@ -309,56 +397,50 @@ function Flota() {
   );
 }
 
-function Mantenimiento() {
+function Mantenimiento({ equipos }) {
   const [sel,setSel]=useState(null);
-  const eq=sel?EQUIPOS_DATA.find(e=>e.id===sel):null;
-  const alNivel=e=>{ if(["critico","en_reparacion"].includes(e.estado_tecnico)) return "critico"; const d=dHasta(e.proximo_mant_fecha); if(d===null||d<0) return "vencido"; if(d<=14) return "urgente"; return "ok"; };
-  const alCfg={critico:{c:"#FF4444",l:"CRÍTICO"},vencido:{c:"#FF4444",l:"VENCIDO"},urgente:{c:"#FF6B35",l:"URGENTE"},ok:{c:"#00E5A0",l:"Al día"}};
+  const eq=sel?equipos.find(e=>e.id===sel):null;
+  const alNivel=e=>{ if(["critico","en_reparacion"].includes(e.estado_tecnico)) return "critico"; return "ok"; };
+  const alCfg={critico:{c:"#FF4444",l:"CRÍTICO"},ok:{c:"#00E5A0",l:"Al día"}};
 
   return (
     <div style={{display:"flex",flex:1,overflow:"hidden"}}>
       <div style={{width:270,borderRight:"1px solid #12151C",display:"flex",flexDirection:"column",background:"#080A10"}}>
         <div style={{padding:"10px 12px",borderBottom:"1px solid #12151C"}}>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-            {[{l:"Críticos",v:EQUIPOS_DATA.filter(e=>["critico","en_reparacion"].includes(e.estado_tecnico)).length,c:"#FF4444"},{l:"Al día",v:EQUIPOS_DATA.filter(e=>{ const d=dHasta(e.proximo_mant_fecha); return d!==null&&d>=14; }).length,c:"#00E5A0"}].map((s,i)=>(
+            {[{l:"Críticos",v:equipos.filter(e=>["critico","en_reparacion"].includes(e.estado_tecnico)).length,c:"#FF4444"},{l:"Al día",v:equipos.filter(e=>e.estado_tecnico==="bueno").length,c:"#00E5A0"}].map((s,i)=>(
               <div key={i} style={{background:"#12151C",borderRadius:6,padding:"7px",textAlign:"center"}}><div style={{fontSize:18,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:9,color:"#5A6070"}}>{s.l}</div></div>
             ))}
           </div>
         </div>
         <div style={{flex:1,overflowY:"auto"}}>
-          {EQUIPOS_DATA.filter(e=>e.estado!=="vendido").map(e=>{const nivel=alNivel(e);const cfg=alCfg[nivel];const dias=dHasta(e.proximo_mant_fecha);const isSel=sel===e.id;return(
-            <div key={e.id} onClick={()=>setSel(e.id)} style={{padding:"10px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?cfg.c:"transparent"}`}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,fontWeight:700}}>{e.codigo}</span><span style={{fontSize:9,fontWeight:800,color:cfg.c,background:`${cfg.c}15`,padding:"2px 6px",borderRadius:20}}>{cfg.l}</span></div>
-              <div style={{fontSize:10,color:"#5A6070"}}>{e.marca} {e.modelo}</div>
-              <div style={{fontSize:10,marginTop:2,color:e.estado_tecnico==="critico"?"#FF4444":dias&&dias<0?"#FF4444":dias&&dias<=14?"#FF6B35":"#5A6070"}}>
-                {e.estado_tecnico==="critico"?"🚨 Crítico":e.estado_tecnico==="en_reparacion"?"🛠️ En reparación":dias===null?"—":dias<0?`Vencido ${Math.abs(dias)}d`:`Service en ${dias}d`}
+          {equipos.filter(e=>e.estado!=="vendido").map(e=>{
+            const nivel=alNivel(e);const cfg=alCfg[nivel];const isSel=sel===e.id;
+            return(
+              <div key={e.id} onClick={()=>setSel(e.id)} style={{padding:"10px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?cfg.c:"transparent"}`}}>
+                <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:12,fontWeight:700}}>{e.codigo}</span><span style={{fontSize:9,fontWeight:800,color:cfg.c,background:`${cfg.c}15`,padding:"2px 6px",borderRadius:20}}>{cfg.l}</span></div>
+                <div style={{fontSize:10,color:"#5A6070"}}>{e.marca} {e.modelo}</div>
+                <div style={{fontSize:10,marginTop:2,color:e.estado_tecnico==="critico"?"#FF4444":e.estado_tecnico==="en_reparacion"?"#FF3B8B":"#5A6070"}}>
+                  {e.estado_tecnico==="critico"?"🚨 Crítico":e.estado_tecnico==="en_reparacion"?"🛠️ En reparación":"✅ Buen estado"}
+                </div>
               </div>
-            </div>
-          );})}
+            );
+          })}
         </div>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:"18px"}}>
         {!eq?(<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:"#1E2230"}}><div style={{fontSize:48}}>🔧</div><div style={{fontSize:13,fontWeight:700,marginTop:10,color:"#2A2D3A"}}>Selecciona un equipo</div></div>):(
           <div>
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}>
-              <div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{eq.codigo} · {eq.marca} {eq.modelo}</h2><div style={{fontSize:11,color:"#5A6070"}}>{eq.serie} · {eq.tipo}</div></div>
-              <div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#5A6070"}}>Estado técnico</div><div style={{fontSize:14,fontWeight:800,color:EST_TEC[eq.estado_tecnico]?.color}}>{EST_TEC[eq.estado_tecnico]?.icon} {EST_TEC[eq.estado_tecnico]?.label}</div></div>
+              <div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{eq.codigo} · {eq.marca} {eq.modelo}</h2><div style={{fontSize:11,color:"#5A6070"}}>{eq.serie||"—"} · {eq.tipo_equipo}</div></div>
+              <div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#5A6070"}}>Estado técnico</div><div style={{fontSize:14,fontWeight:800,color:EST_TEC[eq.estado_tecnico]?.color||"#5A6070"}}>{EST_TEC[eq.estado_tecnico]?.icon||"❓"} {EST_TEC[eq.estado_tecnico]?.label||eq.estado_tecnico||"—"}</div></div>
             </div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:9,marginBottom:14}}>
-              {[
-                {l:"Horas uso",v:`${eq.horas_uso.toLocaleString()} h`,c:"#D4D8E8"},
-                {l:"Último service",v:eq.ultimo_mantenimiento,c:"#3B9EFF"},
-                {l:"Próx. fecha",v:(()=>{const d=dHasta(eq.proximo_mant_fecha);return d===null?"—":d<0?`VENC. ${Math.abs(d)}d`:`en ${d}d`;})(),c:(()=>{const d=dHasta(eq.proximo_mant_fecha);return d&&d<0?"#FF4444":d&&d<=14?"#FF6B35":"#FFB930";})()},
-                {l:"Próx. horas",v:(()=>{const h=eq.proximo_mant_horas-eq.horas_uso;return h<0?`VENC. ${Math.abs(h)}h`:`en ${h}h`;})(),c:(()=>{const h=eq.proximo_mant_horas-eq.horas_uso;return h<0?"#FF4444":h<=50?"#FF6B35":"#FFB930";})()},
-              ].map((k,i)=>(
-                <div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}><div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{k.l}</div><div style={{fontSize:12,fontWeight:800,color:k.c}}>{k.v}</div></div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:9,marginBottom:14}}>
+              {[{l:"Ubicación",v:eq.ubicacion||"—"},{l:"Combustible",v:eq.combustible||"—"},{l:"Capacidad",v:eq.capacidad_kg?`${eq.capacidad_kg.toLocaleString()} kg`:"—"},{l:"Costo reparación est.",v:eq.costo_reparacion_estimado?fmt(eq.costo_reparacion_estimado):"—"}].map((k,i)=>(
+                <div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}><div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{k.l}</div><div style={{fontSize:12,fontWeight:800,color:"#D4D8E8"}}>{k.v}</div></div>
               ))}
             </div>
-            <div style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"12px 14px",marginBottom:10}}>
-              <div style={{fontSize:10,color:"#5A6070",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:6}}>Vida Útil</div>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:"#5A6070",marginBottom:4}}><span>{eq.horas_uso.toLocaleString()} h</span><span>{eq.horas_vida_util.toLocaleString()} h</span></div>
-              <div style={{height:5,background:"#12151C",borderRadius:3,overflow:"hidden"}}><div style={{width:`${Math.min((eq.horas_uso/eq.horas_vida_util)*100,100)}%`,height:"100%",background:(eq.horas_uso/eq.horas_vida_util)>0.8?"#FF4444":"#3B9EFF",borderRadius:3}}/></div>
-            </div>
+            {eq.observaciones&&<div style={{background:"#FFB93010",border:"1px solid #FFB93030",borderRadius:8,padding:"10px 13px",marginBottom:10,fontSize:11,color:"#FFB930"}}>📝 {eq.observaciones}</div>}
             <button style={{width:"100%",padding:"9px",borderRadius:8,border:"1px dashed #1E2230",background:"transparent",color:"#5A6070",fontSize:11,cursor:"pointer"}}>+ Registrar Mantenimiento</button>
           </div>
         )}
@@ -385,8 +467,8 @@ function Rentas() {
         <div style={{flex:1,overflowY:"auto"}}>
           {RENTAS_DATA.map(x=>{const cfg=ESTAT[x.estado]||{c:"#5A6070",i:"—",l:x.estado};const venc=x.pagos.some(p=>p.estado==="vencido");const isSel=sel===x.id;const dias=dHasta(x.fecha_fin);return(
             <div key={x.id} onClick={()=>{setSel(x.id);setTab("detalle");}} style={{padding:"10px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?cfg.c:"transparent"}`}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><div><div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:12,fontWeight:700}}>{x.cliente}</span>{venc&&<span style={{fontSize:8,background:"#FF444415",color:"#FF4444",padding:"1px 4px",borderRadius:4,fontWeight:800}}>VENCIDO</span>}</div><div style={{fontSize:10,color:"#5A6070"}}>{x.equipo_desc.substring(0,28)}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:9,color:cfg.c,fontWeight:700}}>{cfg.i} {cfg.l}</div><div style={{fontSize:12,fontWeight:800,color:"#FFB930"}}>{fmt(x.valor)}</div></div></div>
-              {x.estado==="activa"&&<div style={{fontSize:10,color:dias&&dias<=7?"#FF4444":"#5A6070"}}>⏱ {dias&&dias<0?`Venció`:`${dias}d`}</div>}
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><div><div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:12,fontWeight:700}}>{x.cliente}</span>{venc&&<span style={{fontSize:8,background:"#FF444415",color:"#FF4444",padding:"1px 4px",borderRadius:4,fontWeight:800}}>VENCIDO</span>}</div><div style={{fontSize:10,color:"#5A6070"}}>{x.equipo_desc&&x.equipo_desc.substring(0,28)}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:9,color:cfg.c,fontWeight:700}}>{cfg.i} {cfg.l}</div><div style={{fontSize:12,fontWeight:800,color:"#FFB930"}}>{fmt(x.valor)}</div></div></div>
+              {x.estado==="activa"&&<div style={{fontSize:10,color:dias&&dias<=7?"#FF4444":"#5A6070"}}>⏱ {dias&&dias<0?"Venció":`${dias}d`}</div>}
             </div>
           );})}
         </div>
@@ -397,8 +479,9 @@ function Rentas() {
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{r.cliente}</h2><div style={{fontSize:11,color:"#5A6070"}}>{r.cotizacion} · {r.tel}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#5A6070"}}>Valor {r.tipo_cobro}</div><div style={{fontSize:20,fontWeight:800,color:"#FFB930"}}>{fmt(r.valor)}</div></div></div>
             <div style={{display:"flex",gap:4,marginBottom:14}}>{["detalle","pagos","cobros_extra"].map(t=><button key={t} onClick={()=>setTab(t)} style={{padding:"5px 11px",borderRadius:6,fontSize:11,border:"none",cursor:"pointer",background:tab===t?"#12151C":"transparent",color:tab===t?"#D4D8E8":"#353840",fontWeight:tab===t?700:400}}>{t==="detalle"?"📋 Detalle":t==="pagos"?"💰 Pagos":"⚠️ Cobros Extra"}</button>)}</div>
             {tab==="detalle"&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:9}}>{[{l:"Cliente",v:r.cliente},{l:"Contacto",v:r.contacto},{l:"Teléfono",v:r.tel},{l:"Cotización",v:r.cotizacion},{l:"Inicio",v:r.fecha_inicio},{l:"Fin",v:r.fecha_fin},{l:"Tipo cobro",v:r.tipo_cobro},{l:"Equipo",v:r.equipo_desc}].map((f,i)=><div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}><div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{f.l}</div><div style={{fontSize:12,fontWeight:600}}>{f.v||"—"}</div></div>)}</div>}
-            {tab==="pagos"&&<div>{r.pagos.length===0?<div style={{textAlign:"center",padding:"30px",color:"#353840"}}>Sin pagos</div>:r.pagos.map((p,i)=>{const pC={pagado:{c:"#00E5A0",i:"✅"},pendiente:{c:"#FFB930",i:"⏳"},vencido:{c:"#FF4444",i:"🔴"}}[p.estado];return<div key={i} style={{background:"#0C0E14",border:`1px solid ${pC.c}25`,borderRadius:9,padding:"11px 13px",marginBottom:7,borderLeft:`3px solid ${pC.c}`}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontSize:12,fontWeight:700}}>{p.mes}</div><div style={{fontSize:10,color:"#5A6070"}}>{p.fecha_pago?`Pagado: ${p.fecha_pago}`:p.vence?`Vence: ${p.vence}`:""}</div></div><div style={{display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:9,fontWeight:800,color:pC.c,background:`${pC.c}15`,padding:"2px 6px",borderRadius:20}}>{pC.i} {p.estado}</span><div style={{fontSize:14,fontWeight:800,color:"#FFB930"}}>{fmt(p.monto)}</div></div></div></div>;})}</div>}
-            {tab==="cobros_extra"&&<div>{r.cobros_extra.length===0?<div style={{textAlign:"center",padding:"40px",color:"#353840"}}><div style={{fontSize:28,marginBottom:8}}>✅</div><div>Sin cobros extra</div></div>:r.cobros_extra.map((c,i)=><div key={i} style={{background:"#0C0E14",border:`1px solid ${c.cobrado?"#00E5A030":"#FF3B8B30"}`,borderRadius:9,padding:"11px 13px",marginBottom:7,borderLeft:`3px solid ${c.cobrado?"#00E5A0":"#FF3B8B"}`}}><div style={{display:"flex",justifyContent:"space-between"}}><div style={{fontSize:12,fontWeight:700}}>{c.concepto}</div><div><div style={{fontSize:14,fontWeight:800,color:"#FF3B8B"}}>{fmt(c.monto)}</div><div style={{fontSize:9,color:c.cobrado?"#00E5A0":"#FF3B8B",fontWeight:700,textAlign:"right"}}>{c.cobrado?"Cobrado":"PENDIENTE"}</div></div></div></div>)}<button style={{width:"100%",padding:"9px",borderRadius:8,border:"1px dashed #1E2230",background:"transparent",color:"#5A6070",fontSize:11,cursor:"pointer"}}>+ Cobro extra</button></div>}
+            {tab==="pagos"&&<div>{r.pagos.map((p,i)=>{const pC={pagado:{c:"#00E5A0",i:"✅"},pendiente:{c:"#FFB930",i:"⏳"},vencido:{c:"#FF4444",i:"🔴"}}[p.estado];return<div key={i} style={{background:"#0C0E14",border:`1px solid ${pC.c}25`,borderRadius:9,padding:"11px 13px",marginBottom:7,borderLeft:`3px solid ${pC.c}`}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontSize:12,fontWeight:700}}>{p.mes}</div></div><div style={{display:"flex",alignItems:"center",gap:7}}><span style={{fontSize:9,fontWeight:800,color:pC.c,background:`${pC.c}15`,padding:"2px 6px",borderRadius:20}}>{pC.i} {p.estado}</span><div style={{fontSize:14,fontWeight:800,color:"#FFB930"}}>{fmt(p.monto)}</div></div></div></div>;})}
+            </div>}
+            {tab==="cobros_extra"&&<div>{r.cobros_extra.length===0?<div style={{textAlign:"center",padding:"30px",color:"#353840"}}>✅ Sin cobros extra</div>:r.cobros_extra.map((c,i)=><div key={i} style={{background:"#0C0E14",border:`1px solid #FF3B8B30`,borderRadius:9,padding:"11px 13px",marginBottom:7}}><div style={{display:"flex",justifyContent:"space-between"}}><div style={{fontSize:12,fontWeight:700}}>{c.concepto}</div><div style={{fontSize:14,fontWeight:800,color:"#FF3B8B"}}>{fmt(c.monto)}</div></div></div>)}</div>}
           </div>
         )}
       </div>
@@ -420,7 +503,7 @@ function CRM() {
           </div>
         </div>
         <div style={{flex:1,overflowY:"auto"}}>
-          {CLIENTES_DATA.filter(c=>filtro==="todos"||c.estado===filtro).map(c=>{const ind=IND_CFG[c.industria];const ecli=ECLI[c.estado];const dias=dDesde(c.ultima_actividad);const isSel=sel===c.id;return(
+          {CLIENTES_DATA.filter(c=>filtro==="todos"||c.estado===filtro).map(c=>{const ind=IND_CFG[c.industria]||{color:"#5A6070",icon:"🏢"};const ecli=ECLI[c.estado]||{c:"#5A6070",l:c.estado};const dias=dDesde(c.ultima_actividad);const isSel=sel===c.id;return(
             <div key={c.id} onClick={()=>setSel(c.id)} style={{padding:"10px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?ind.color:"transparent"}`}}>
               <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><div><div style={{fontSize:12,fontWeight:700}}>{ind.icon} {c.empresa}</div><div style={{fontSize:10,color:"#5A6070"}}>{c.contacto}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:9,color:ecli.c,fontWeight:700}}>{ecli.l}</div>{c.valor_total>0&&<div style={{fontSize:11,fontWeight:700,color:"#FFB930"}}>{fmt(c.valor_total)}</div>}</div></div>
               <div style={{fontSize:10,color:dias>30?"#FFB930":"#353840"}}>⏱ {dias===0?"Hoy":`hace ${dias}d`}</div>
@@ -431,11 +514,8 @@ function CRM() {
       <div style={{flex:1,overflowY:"auto",padding:"18px"}}>
         {!cli?(<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:"#1E2230"}}><div style={{fontSize:48}}>👥</div><div style={{fontSize:13,fontWeight:700,marginTop:10,color:"#2A2D3A"}}>Selecciona un cliente</div></div>):(
           <div>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{IND_CFG[cli.industria].icon} {cli.empresa}</h2><div style={{fontSize:11,color:"#5A6070"}}>{cli.contacto} · {cli.cargo}</div><div style={{fontSize:11,color:"#353840"}}>{cli.email} · {cli.ciudad}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#5A6070"}}>Total rentas</div><div style={{fontSize:20,fontWeight:800,color:"#FFB930"}}>{fmt(cli.valor_total)}</div></div></div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9,marginBottom:14}}>{[{l:"Estado",v:cli.estado,c:ECLI[cli.estado]?.c||"#5A6070"},{l:"Última actividad",v:`hace ${dDesde(cli.ultima_actividad)}d`,c:dDesde(cli.ultima_actividad)>30?"#FFB930":"#D4D8E8"},{l:"Opps activas",v:cli.opps_activas,c:"#3B9EFF"}].map((s,i)=><div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}><div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{s.l}</div><div style={{fontSize:16,fontWeight:800,color:s.c}}>{s.v}</div></div>)}</div>
-            {OPPS_DATA.filter(o=>o.cliente.includes(cli.empresa.split(" ")[0])).map((o,i)=>(
-              <div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"11px 13px",marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between"}}><div><div style={{fontSize:12,fontWeight:700}}>{o.titulo}</div><div style={{fontSize:10,color:"#5A6070"}}>{o.etapa} · {o.prob}%</div></div><div style={{fontSize:14,fontWeight:800,color:"#FFB930"}}>{fmt(o.valor)}</div></div></div>
-            ))}
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{(IND_CFG[cli.industria]||{icon:"🏢"}).icon} {cli.empresa}</h2><div style={{fontSize:11,color:"#5A6070"}}>{cli.contacto} · {cli.cargo}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#5A6070"}}>Total rentas</div><div style={{fontSize:20,fontWeight:800,color:"#FFB930"}}>{fmt(cli.valor_total)}</div></div></div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9,marginBottom:14}}>{[{l:"Estado",v:cli.estado,c:(ECLI[cli.estado]||{c:"#5A6070"}).c},{l:"Última actividad",v:`hace ${dDesde(cli.ultima_actividad)}d`,c:dDesde(cli.ultima_actividad)>30?"#FFB930":"#D4D8E8"},{l:"Opps activas",v:cli.opps_activas,c:"#3B9EFF"}].map((s,i)=><div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}><div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{s.l}</div><div style={{fontSize:16,fontWeight:800,color:s.c}}>{s.v}</div></div>)}</div>
             <button style={{width:"100%",padding:"9px",borderRadius:8,border:"1px dashed #1E2230",background:"transparent",color:"#5A6070",fontSize:11,cursor:"pointer"}}>+ Registrar actividad</button>
           </div>
         )}
@@ -451,13 +531,12 @@ function Seguimiento() {
   return (
     <div style={{display:"flex",flex:1,overflow:"hidden"}}>
       <div style={{width:270,borderRight:"1px solid #12151C",display:"flex",flexDirection:"column",background:"#080A10"}}>
-        <div style={{padding:"10px 12px",borderBottom:"1px solid #12151C"}}><div style={{fontSize:10,color:"#5A6070",letterSpacing:"0.1em"}}>OPORTUNIDADES +$10,000</div><div style={{fontSize:12,fontWeight:700,color:"#FFB930",marginTop:2}}>{fmt(OPPS_DATA.reduce((s,o)=>s+o.valor,0))} pipeline</div></div>
+        <div style={{padding:"10px 12px",borderBottom:"1px solid #12151C"}}><div style={{fontSize:10,color:"#5A6070"}}>OPORTUNIDADES +$10,000</div><div style={{fontSize:12,fontWeight:700,color:"#FFB930",marginTop:2}}>{fmt(OPPS_DATA.reduce((s,o)=>s+o.valor,0))} pipeline</div></div>
         <div style={{flex:1,overflowY:"auto"}}>
           {OPPS_DATA.map(o=>{const dias=dDesde(o.ultimo_seguimiento);const alerta=dias>=2;const isSel=sel===o.id;return(
             <div key={o.id} onClick={()=>setSel(o.id)} style={{padding:"11px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?(alerta?"#FF4444":"#FF6B35"):"transparent"}`}}>
               <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><div><div style={{display:"flex",gap:5,alignItems:"center"}}><span style={{fontSize:12,fontWeight:700}}>{o.cliente}</span>{alerta&&<span style={{fontSize:8,background:"#FF444415",color:"#FF4444",padding:"1px 4px",borderRadius:4,fontWeight:800}}>⚠️</span>}</div><div style={{fontSize:10,color:"#5A6070"}}>{o.titulo}</div></div><div style={{fontSize:13,fontWeight:800,color:"#FFB930"}}>{fmt(o.valor)}</div></div>
-              <div style={{display:"flex",justifyContent:"space-between",fontSize:10}}><span style={{color:"#5A6070"}}>{o.etapa} · {o.prob}%</span><span style={{color:alerta?"#FF4444":"#5A6070"}}>hace {dias}d</span></div>
-              <div style={{marginTop:4,height:3,background:"#12151C",borderRadius:2}}><div style={{width:`${o.prob}%`,height:"100%",background:alerta?"#FF4444":"#FF6B35",borderRadius:2}}/></div>
+              <div style={{height:3,background:"#12151C",borderRadius:2,marginTop:5}}><div style={{width:`${o.prob}%`,height:"100%",background:alerta?"#FF4444":"#FF6B35",borderRadius:2}}/></div>
             </div>
           );})}
         </div>
@@ -465,15 +544,12 @@ function Seguimiento() {
       <div style={{flex:1,overflowY:"auto",padding:"18px"}}>
         {!opp?(<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:"#1E2230"}}><div style={{fontSize:48}}>🎯</div><div style={{fontSize:13,fontWeight:700,marginTop:10,color:"#2A2D3A"}}>Selecciona una oportunidad</div></div>):(
           <div>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><div><div style={{fontSize:9,color:"#FF6B35",fontWeight:800,letterSpacing:"0.1em",marginBottom:4}}>🎯 SEGUIMIENTO PROFUNDO · +$10,000</div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{opp.titulo}</h2><div style={{fontSize:11,color:"#5A6070"}}>{opp.cliente} · 👤 {opp.vendedor}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:22,fontWeight:800,color:"#FFB930"}}>{fmt(opp.valor)}</div><div style={{fontSize:11,color:"#FF6B35"}}>{opp.prob}% prob.</div></div></div>
-            {dDesde(opp.ultimo_seguimiento)>=2&&<div style={{background:"#FF444410",border:"1px solid #FF444430",borderRadius:9,padding:"12px 14px",marginBottom:14}}><div style={{fontSize:12,fontWeight:800,color:"#FF4444",marginBottom:3}}>🚨 ALERTA — {dDesde(opp.ultimo_seguimiento)*24}h sin seguimiento</div><div style={{fontSize:11,color:"#FF4444"}}>Esta oportunidad de {fmt(opp.valor)} requiere contacto inmediato.</div></div>}
-            <div style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:9,padding:"14px",marginBottom:12}}>
-              <div style={{fontSize:11,fontWeight:700,color:"#8A8FA0",marginBottom:10}}>PREGUNTAS DE SEGUIMIENTO</div>
-              {["¿Cuándo estima cerrar?","¿Cuándo y cómo pagan?","¿Con quién más cotizan?","¿Cuál es el obstáculo para cerrar?","¿Tienen presupuesto aprobado?"].map((p,i)=>(
-                <div key={i} style={{marginBottom:9}}><div style={{fontSize:11,color:"#8A8FA0",marginBottom:4}}><span style={{color:"#FF6B35",marginRight:5}}>{i+1}.</span>{p}</div><input placeholder="Respuesta..." style={{width:"100%",boxSizing:"border-box",background:"#141720",border:"1px solid #1E2230",borderRadius:7,padding:"7px 10px",color:"#D4D8E8",fontSize:11,outline:"none"}}/></div>
-              ))}
-            </div>
-            <button style={{width:"100%",padding:"10px",borderRadius:8,border:"none",background:"linear-gradient(135deg,#FF6B35,#FF3B8B)",color:"#fff",fontSize:12,fontWeight:800,cursor:"pointer"}}>🎯 Guardar Seguimiento →</button>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{opp.titulo}</h2><div style={{fontSize:11,color:"#5A6070"}}>{opp.cliente} · {opp.vendedor}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:22,fontWeight:800,color:"#FFB930"}}>{fmt(opp.valor)}</div><div style={{fontSize:11,color:"#FF6B35"}}>{opp.prob}%</div></div></div>
+            {dDesde(opp.ultimo_seguimiento)>=2&&<div style={{background:"#FF444410",border:"1px solid #FF444430",borderRadius:9,padding:"12px 14px",marginBottom:14}}><div style={{fontSize:12,fontWeight:800,color:"#FF4444"}}>🚨 {dDesde(opp.ultimo_seguimiento)*24}h sin seguimiento</div></div>}
+            {["¿Cuándo estima cerrar?","¿Cómo pagan?","¿Con quién más cotizan?","¿Obstáculo para cerrar?","¿Presupuesto aprobado?"].map((p,i)=>(
+              <div key={i} style={{marginBottom:9}}><div style={{fontSize:11,color:"#8A8FA0",marginBottom:4}}><span style={{color:"#FF6B35",marginRight:5}}>{i+1}.</span>{p}</div><input placeholder="Respuesta..." style={{width:"100%",boxSizing:"border-box",background:"#141720",border:"1px solid #1E2230",borderRadius:7,padding:"7px 10px",color:"#D4D8E8",fontSize:11,outline:"none"}}/></div>
+            ))}
+            <button style={{width:"100%",padding:"10px",borderRadius:8,border:"none",background:"linear-gradient(135deg,#FF6B35,#FF3B8B)",color:"#fff",fontSize:12,fontWeight:800,cursor:"pointer",marginTop:8}}>🎯 Guardar Seguimiento →</button>
           </div>
         )}
       </div>
@@ -481,8 +557,8 @@ function Seguimiento() {
   );
 }
 
-function ElsaModule() {
-  const [msgs,setMsgs]=useState([{role:"assistant",content:"¡Hola! Soy **ELSA** 🤖, la asistente IA de Montasa Handling Co.\n\nEstoy conectada a todos los módulos. Puedo ayudarte a:\n\n• 📝 **Agregar datos** paso a paso\n• 🔍 **Consultar** estados, alertas y reportes\n• ✏️ **Sugerir cambios** en la interfaz o procesos\n• 💡 **Enviar sugerencias** a gerencia\n• 📊 **Analizar** pipeline, inversiones y flota\n\n¿Con qué empezamos?"}]);
+function ElsaModule({ equiposCount }) {
+  const [msgs,setMsgs]=useState([{role:"assistant",content:`¡Hola! Soy **ELSA** 🤖\n\nEstoy conectada a Supabase con **${equiposCount} equipos reales** de Montasa.\n\n¿En qué te ayudo hoy?`}]);
   const [inp,setInp]=useState("");
   const [loading,setLoading]=useState(false);
   const ref=useRef(null);
@@ -495,19 +571,12 @@ function ElsaModule() {
     try{
       const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
         model:"claude-sonnet-4-20250514",max_tokens:1000,
-        system:`Eres ELSA, asistente IA de Montasa Handling Co. con acceso total al sistema.
-Datos actuales del sistema:
-- Flota: ${EQUIPOS_DATA.length} equipos. Disponibles: ${EQUIPOS_DATA.filter(e=>e.estado==="disponible").length}. En renta: ${EQUIPOS_DATA.filter(e=>e.estado==="renta").length}. Críticos: MT55 (transmisión averiada), EL22 (módulo eléctrico quemado).
-- Rentas activas: ${RENTAS_DATA.filter(r=>r.estado==="activa").length}. Ingresos/mes: ${fmt(RENTAS_DATA.filter(r=>r.estado==="activa").reduce((s,r)=>s+r.valor,0))}. Pago vencido: Zona Franca $425.
-- CRM: ${CLIENTES_DATA.length} clientes. Activos: ${CLIENTES_DATA.filter(c=>c.estado==="activo").length}. Pipeline total: ${fmt(OPPS_DATA.reduce((s,o)=>s+o.valor,0))}.
-- Oportunidades +$10k: INGCA $22,500 (40%), Zona Franca $14,400 (60%), Const. Ríos $18,000 (75%).
-- Alertas activas: ${ALERTAS_DATA.filter(a=>["critico","urgente"].includes(a.tipo)).length}. Sugerencias sin leer: ${SUGERENCIAS_DATA.filter(s=>!s.leida).length}.
-Responde siempre en español. Sé proactiva, usa emojis ocasionalmente. Si el usuario quiere agregar datos, guíalo paso a paso. Si quiere cambiar la interfaz, registra y confirma. Máximo 150 palabras salvo reportes.`,
+        system:`Eres ELSA, asistente IA de Montasa Handling Co. Flota real en Supabase: ${equiposCount} equipos. Rentas activas: 2 ($5,350/mes). Pipeline: $54,900. Responde en español.`,
         messages:nuevos.map(m=>({role:m.role,content:m.content})),
       })});
       const d=await res.json();
-      setMsgs(p=>[...p,{role:"assistant",content:d.content?.[0]?.text||"Error de conexión."}]);
-    }catch{setMsgs(p=>[...p,{role:"assistant",content:"⚠️ Error de conexión. Intenta de nuevo."}]);}
+      setMsgs(p=>[...p,{role:"assistant",content:d.content?.[0]?.text||"Error."}]);
+    }catch{setMsgs(p=>[...p,{role:"assistant",content:"⚠️ Error."}]);}
     finally{setLoading(false);}
   };
 
@@ -517,47 +586,52 @@ Responde siempre en español. Sé proactiva, usa emojis ocasionalmente. Si el us
     <div style={{display:"flex",flexDirection:"column",flex:1,overflow:"hidden"}}>
       <div style={{padding:"9px 14px",borderBottom:"1px solid #12151C",background:"#080A10",overflowX:"auto"}}>
         <div style={{display:"flex",gap:5,minWidth:"max-content"}}>
-          {[{i:"📊",t:"Dame un resumen de Montasa hoy"},{i:"🚨",t:"¿Qué necesita atención urgente?"},{i:"➕",t:"Quiero agregar un equipo nuevo"},{i:"💰",t:"¿Cuánto generamos este mes?"},{i:"📋",t:"Clientes sin contacto en 30+ días"},{i:"🎯",t:"Oportunidades en riesgo de perderse"},{i:"💡",t:"Quiero enviar una sugerencia"},{i:"🔧",t:"Equipos con mantenimiento urgente"}].map((a,i)=>(
-            <button key={i} onClick={()=>enviar(a.t)} style={{padding:"4px 10px",borderRadius:20,fontSize:10,border:"1px solid #1E2230",background:"#0C0E14",color:"#8A8FA0",cursor:"pointer",whiteSpace:"nowrap"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="#FFB930";e.currentTarget.style.color="#FFB930";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="#1E2230";e.currentTarget.style.color="#8A8FA0";}}>{a.i} {a.t}</button>
+          {[{i:"📊",t:"Dame un resumen de Montasa hoy"},{i:"🚨",t:"¿Qué necesita atención urgente?"},{i:"🏗️",t:"¿Cuántos equipos disponibles hay?"},{i:"💰",t:"¿Cuánto generamos este mes?"},{i:"💡",t:"Quiero enviar una sugerencia a gerencia"}].map((a,i)=>(
+            <button key={i} onClick={()=>enviar(a.t)} style={{padding:"4px 10px",borderRadius:20,fontSize:10,border:"1px solid #1E2230",background:"#0C0E14",color:"#8A8FA0",cursor:"pointer",whiteSpace:"nowrap"}}>{a.i} {a.t}</button>
           ))}
         </div>
       </div>
       <div ref={ref} style={{flex:1,overflowY:"auto",padding:"18px 20px",display:"flex",flexDirection:"column",gap:12}}>
         {msgs.map((m,i)=>(
           <div key={i} style={{display:"flex",flexDirection:m.role==="user"?"row-reverse":"row",alignItems:"flex-end",gap:7}}>
-            <div style={{width:30,height:30,borderRadius:"50%",flexShrink:0,background:m.role==="assistant"?"linear-gradient(135deg,#FFB930,#FF3B8B)":"#3B9EFF20",border:`1px solid ${m.role==="assistant"?"#FF6B3540":"#3B9EFF30"}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{m.role==="assistant"?"🤖":"👔"}</div>
+            <div style={{width:30,height:30,borderRadius:"50%",flexShrink:0,background:m.role==="assistant"?"linear-gradient(135deg,#FFB930,#FF3B8B)":"#3B9EFF20",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{m.role==="assistant"?"🤖":"👔"}</div>
             <div style={{maxWidth:"72%",background:m.role==="assistant"?"#0E1018":"#3B9EFF18",border:`1px solid ${m.role==="assistant"?"#1E2230":"#3B9EFF30"}`,borderRadius:m.role==="assistant"?"4px 12px 12px 12px":"12px 4px 12px 12px",padding:"11px 13px",fontSize:12,lineHeight:1.6,color:"#D4D8E8"}} dangerouslySetInnerHTML={{__html:md(m.content)}}/>
           </div>
         ))}
         {loading&&<div style={{display:"flex",alignItems:"flex-end",gap:7}}><div style={{width:30,height:30,borderRadius:"50%",background:"linear-gradient(135deg,#FFB930,#FF3B8B)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>🤖</div><div style={{background:"#0E1018",border:"1px solid #1E2230",borderRadius:"4px 12px 12px 12px",padding:"13px 15px",display:"flex",gap:4}}>{[0,1,2].map(i=><div key={i} style={{width:6,height:6,borderRadius:"50%",background:"#FF6B35",animation:`pulse 1.2s ease-in-out ${i*0.2}s infinite`}}/>)}</div></div>}
       </div>
       <div style={{padding:"11px 14px",borderTop:"1px solid #12151C",background:"#080A10",display:"flex",gap:7,alignItems:"flex-end"}}>
-        <textarea value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();enviar();}}} placeholder="Escribe tu mensaje... (Enter para enviar)" rows={1} style={{flex:1,background:"#0C0E14",border:"1px solid #1E2230",borderRadius:9,padding:"9px 13px",color:"#D4D8E8",fontSize:12,outline:"none",resize:"none",fontFamily:"inherit"}}/>
+        <textarea value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();enviar();}}} placeholder="Escribe tu mensaje..." rows={1} style={{flex:1,background:"#0C0E14",border:"1px solid #1E2230",borderRadius:9,padding:"9px 13px",color:"#D4D8E8",fontSize:12,outline:"none",resize:"none",fontFamily:"inherit"}}/>
         <button onClick={()=>enviar()} disabled={!inp.trim()||loading} style={{width:38,height:38,borderRadius:9,border:"none",background:inp.trim()&&!loading?"linear-gradient(135deg,#FFB930,#FF6B35)":"#12151C",color:inp.trim()&&!loading?"#06080D":"#353840",cursor:inp.trim()&&!loading?"pointer":"default",fontSize:15,display:"flex",alignItems:"center",justifyContent:"center"}}>→</button>
       </div>
     </div>
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// APP SHELL
-// ═══════════════════════════════════════════════════════════════════════════════
-
 export default function MontasaApp() {
   const [mod,setMod]=useState("dashboard");
+  const [equipos,setEquipos]=useState([]);
   const alertasTotal=ALERTAS_DATA.filter(a=>["critico","urgente"].includes(a.tipo)).length;
   const criticas=ALERTAS_DATA.filter(a=>a.tipo==="critico").length;
 
+  useEffect(()=>{
+    const cargar = async () => {
+      const {data} = await supabase.from('equipos').select('*');
+      if(data) setEquipos(data);
+    };
+    cargar();
+  },[]);
+
   return (
     <div style={{fontFamily:"'DM Sans','Segoe UI',sans-serif",background:"#06080D",height:"100vh",display:"flex",flexDirection:"column",color:"#D4D8E8",overflow:"hidden"}}>
-
-      {/* TOP NAV */}
       <div style={{borderBottom:"1px solid #12151C",padding:"0 14px",display:"flex",alignItems:"center",justifyContent:"space-between",background:"#080A10",height:48,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:9}}>
           <div style={{width:28,height:28,borderRadius:7,background:"linear-gradient(135deg,#FFB930,#FF6B35)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>🏗️</div>
-          <div><div style={{fontSize:12,fontWeight:800,letterSpacing:"0.04em"}}>MONTASA HANDLING CO.</div><div style={{fontSize:8,color:"#2E3240",letterSpacing:"0.12em"}}>SISTEMA INTEGRAL v1.0</div></div>
+          <div>
+            <div style={{fontSize:12,fontWeight:800,letterSpacing:"0.04em"}}>MONTASA HANDLING CO.</div>
+            <div style={{fontSize:8,color:"#2E3240",letterSpacing:"0.12em"}}>SISTEMA INTEGRAL v2.0 · {equipos.length} EQUIPOS · SUPABASE ✅</div>
+          </div>
         </div>
-
         <div style={{display:"flex",gap:0}}>
           {NAV.map(item=>{
             const activo=mod===item.id;
@@ -568,14 +642,13 @@ export default function MontasaApp() {
               >
                 <span>{item.icon}</span><span>{item.label}</span>
                 {item.id==="dashboard"&&alertasTotal>0&&<span style={{position:"absolute",top:7,right:3,width:14,height:14,borderRadius:"50%",background:"#FF4444",color:"#fff",fontSize:8,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center"}}>{alertasTotal}</span>}
-                {item.id==="elsa"&&criticas>0&&<span style={{width:6,height:6,borderRadius:"50%",background:"#FF6B35",animation:"elsaPulse 2s ease-in-out infinite"}}/>}
+                {item.id==="elsa"&&criticas>0&&<span style={{width:6,height:6,borderRadius:"50%",background:"#FF6B35"}}/>}
               </button>
             );
           })}
         </div>
-
         <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <div style={{fontSize:10,color:"#353840"}}>Jue 9 Abr 2025</div>
+          <span style={{fontSize:10,color:"#00E5A0",fontWeight:700}}>✅ Supabase</span>
           <div style={{display:"flex",alignItems:"center",gap:5,background:"#12151C",border:"1px solid #1E2230",borderRadius:7,padding:"4px 8px"}}>
             <div style={{width:18,height:18,borderRadius:"50%",background:"linear-gradient(135deg,#FFB930,#FF6B35)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9}}>👔</div>
             <span style={{fontSize:11,fontWeight:600}}>Gerencia</span>
@@ -583,27 +656,24 @@ export default function MontasaApp() {
         </div>
       </div>
 
-      {/* CONTENT */}
       <div style={{flex:1,display:"flex",overflow:"hidden"}}>
-        {mod==="dashboard"    &&<Dashboard navigate={setMod}/>}
+        {mod==="dashboard"    &&<Dashboard navigate={setMod} equipos={equipos}/>}
         {mod==="flota"        &&<Flota/>}
-        {mod==="mantenimiento"&&<Mantenimiento/>}
+        {mod==="mantenimiento"&&<Mantenimiento equipos={equipos}/>}
         {mod==="rentas"       &&<Rentas/>}
         {mod==="crm"          &&<CRM/>}
         {mod==="seguimiento"  &&<Seguimiento/>}
-        {mod==="elsa"         &&<ElsaModule/>}
+        {mod==="elsa"         &&<ElsaModule equiposCount={equipos.length}/>}
       </div>
 
-      {/* FOOTER */}
       <div style={{borderTop:"1px solid #0D0F14",padding:"4px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",background:"#080A10",flexShrink:0}}>
-        <span style={{fontSize:8,color:"#1E2230",letterSpacing:"0.1em"}}>MONTASA HANDLING CO. · SISTEMA INTEGRAL v1.0</span>
+        <span style={{fontSize:8,color:"#1E2230",letterSpacing:"0.1em"}}>MONTASA HANDLING CO. · v2.0 · SUPABASE CONECTADO · {equipos.length} EQUIPOS REALES</span>
         <div style={{display:"flex",gap:10}}>
-          {Object.entries(STATUS_CFG).map(([k,v])=>{const c=EQUIPOS_DATA.filter(e=>e.estado===k).length;if(!c)return null;return<span key={k} style={{display:"flex",alignItems:"center",gap:3,fontSize:8,color:"#353840"}}><span style={{width:4,height:4,borderRadius:"50%",background:v.color,display:"inline-block"}}/>{c} {v.label}</span>;})}
+          {Object.entries(STATUS_CFG).map(([k,v])=>{const c=equipos.filter(e=>e.estado===k).length;if(!c)return null;return<span key={k} style={{display:"flex",alignItems:"center",gap:3,fontSize:8,color:"#353840"}}><span style={{width:4,height:4,borderRadius:"50%",background:v.color,display:"inline-block"}}/>{c} {v.label}</span>;})}
         </div>
       </div>
 
-      {/* ELSA FLOATING */}
-      {mod!=="elsa"&&<ElsaFloat mod={mod}/>}
+      {mod!=="elsa"&&<ElsaFloat mod={mod} equiposCount={equipos.length}/>}
 
       <style>{`
         @keyframes elsaPulse{0%,100%{box-shadow:0 0 0 0 #FF6B3540,0 4px 20px #FF6B3540}50%{box-shadow:0 0 0 10px #FF6B3508,0 4px 20px #FF6B3540}}
