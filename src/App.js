@@ -1,4 +1,7 @@
 /* eslint-disable */
+import { createClient } from '@supabase/supabase-js';
+const supabase = createClient('https://xstrugwgpozoipgjjspy.supabase.co', 'sb_publishable_vSdEcWognHjuLuAnjJHq3A_C_zwP6W0');
+
 import { useState, useRef, useEffect } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════════
