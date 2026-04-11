@@ -490,41 +490,32 @@ function Rentas() {
 }
 
 function CRM() {
-  const [clientes,setClientes]=useState([]);
-  const [loading,setLoading]=useState(true);
   const [sel,setSel]=useState(null);
   const [filtro,setFiltro]=useState("todos");
-  const [search,setSearch]=useState("");
-  const [oppsCliente,setOppsCliente]=useState([]);
-  const ECLI={activo:{c:"#00E5A0",l:"Activo"},prospecto:{c:"#3B9EFF",l:"Prospecto"},frio:{c:"#FFB930",l:"Frio"}};
-  useEffect(()=>{ cargarClientes(); },[]);
-  const cargarClientes=async()=>{ setLoading(true); const {data,error}=await supabase.from("clientes").select("*").order("empresa"); if(!error&&data) setClientes(data); setLoading(false); };
-  const cargarOpps=async(empresa)=>{ const {data}=await supabase.from("oportunidades").select("*").ilike("cliente","%"+empresa+"%").order("fecha_cierre",{ascending:false}).limit(5); if(data) setOppsCliente(data); };
-  const selCliente=(c)=>{ setSel(c.id); cargarOpps(c.empresa); };
-  const cli=sel?clientes.find(c=>c.id===sel):null;
-  const filtered=clientes.filter(c=>(filtro==="todos"||c.estado===filtro)&&(!search||[c.empresa,c.contacto,c.email,c.telefono].filter(Boolean).some(v=>v.toLowerCase().includes(search.toLowerCase()))));
+  const cli=sel?CLIENTES_DATA.find(c=>c.id===sel):null;
+  const ECLI={activo:{c:"#00E5A0",l:"Activo"},prospecto:{c:"#3B9EFF",l:"Prospecto"},frio:{c:"#FFB930",l:"Frío"}};
+
   return (
     <div style={{display:"flex",flex:1,overflow:"hidden"}}>
-      <div style={{width:280,borderRight:"1px solid #12151C",display:"flex",flexDirection:"column",background:"#080A10"}}>
+      <div style={{width:270,borderRight:"1px solid #12151C",display:"flex",flexDirection:"column",background:"#080A10"}}>
         <div style={{padding:"10px 12px",borderBottom:"1px solid #12151C"}}>
-          <input placeholder="Buscar cliente..." value={search} onChange={e=>setSearch(e.target.value)} style={{width:"100%",boxSizing:"border-box",background:"#12151C",border:"1px solid #1E2230",borderRadius:7,padding:"7px 10px",color:"#D4D8E8",fontSize:11,outline:"none",marginBottom:7}}/>
-          <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>{["todos","activo","prospecto","frio"].map(f=>{const cfg=f==="todos"?{c:"#D4D8E8",l:"Todos"}:ECLI[f]||{c:"#5A6070",l:f};return<button key={f} onClick={()=>setFiltro(f)} style={{padding:"2px 8px",borderRadius:20,fontSize:9,border:"none",cursor:"pointer",background:filtro===f?cfg.c:"#12151C",color:filtro===f?"#06080D":"#5A6070",fontWeight:filtro===f?800:400}}>{cfg.l}</button>;})}</div>
+          <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>{["todos","activo","prospecto","frio"].map(f=>{const cfg=f==="todos"?{c:"#D4D8E8",l:"Todos"}:ECLI[f];return<button key={f} onClick={()=>setFiltro(f)} style={{padding:"2px 8px",borderRadius:20,fontSize:9,border:"none",cursor:"pointer",background:filtro===f?cfg.c:"#12151C",color:filtro===f?"#06080D":"#5A6070",fontWeight:filtro===f?800:400}}>{cfg.l}</button>;})}
+          </div>
         </div>
         <div style={{flex:1,overflowY:"auto"}}>
-          {loading?<div style={{padding:"20px",textAlign:"center",color:"#5A6070",fontSize:11}}>Cargando clientes...</div>:filtered.map(c=>{const ecli=ECLI[c.estado]||{c:"#5A6070",l:c.estado||"-"};const isSel=sel===c.id;return(
-            <div key={c.id} onClick={()=>selCliente(c)} style={{padding:"10px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?ecli.c:"transparent"}`}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><div><div style={{fontSize:12,fontWeight:700}}>🏢 {c.empresa}</div><div style={{fontSize:10,color:"#5A6070"}}>{c.contacto}</div>{c.vendedor&&<div style={{fontSize:9,color:"#353840"}}>👤 {c.vendedor}</div>}</div><div style={{textAlign:"right"}}><div style={{fontSize:9,color:ecli.c,fontWeight:700}}>{ecli.l}</div></div></div>
+          {CLIENTES_DATA.filter(c=>filtro==="todos"||c.estado===filtro).map(c=>{const ind=IND_CFG[c.industria]||{color:"#5A6070",icon:"🏢"};const ecli=ECLI[c.estado]||{c:"#5A6070",l:c.estado};const dias=dDesde(c.ultima_actividad);const isSel=sel===c.id;return(
+            <div key={c.id} onClick={()=>setSel(c.id)} style={{padding:"10px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?ind.color:"transparent"}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><div><div style={{fontSize:12,fontWeight:700}}>{ind.icon} {c.empresa}</div><div style={{fontSize:10,color:"#5A6070"}}>{c.contacto}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:9,color:ecli.c,fontWeight:700}}>{ecli.l}</div>{c.valor_total>0&&<div style={{fontSize:11,fontWeight:700,color:"#FFB930"}}>{fmt(c.valor_total)}</div>}</div></div>
+              <div style={{fontSize:10,color:dias>30?"#FFB930":"#353840"}}>⏱ {dias===0?"Hoy":`hace ${dias}d`}</div>
             </div>
           );})}
         </div>
-        <div style={{padding:"7px 12px",borderTop:"1px solid #12151C",fontSize:9,color:"#5A6070",textAlign:"center"}}>{filtered.length} de {clientes.length} clientes Supabase</div>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:"18px"}}>
-        {!cli?(<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:"#1E2230"}}><div style={{fontSize:48}}>👥</div><div style={{fontSize:13,fontWeight:700,marginTop:10,color:"#2A2D3A"}}>Selecciona un cliente</div><div style={{fontSize:11,color:"#1E2230",marginTop:4}}>{clientes.length} clientes reales</div></div>):(
+        {!cli?(<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:"#1E2230"}}><div style={{fontSize:48}}>👥</div><div style={{fontSize:13,fontWeight:700,marginTop:10,color:"#2A2D3A"}}>Selecciona un cliente</div></div>):(
           <div>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>🏢 {cli.empresa}</h2><div style={{fontSize:11,color:"#5A6070"}}>{cli.contacto}{cli.cargo?" · "+cli.cargo:""}</div>{cli.email&&<div style={{fontSize:10,color:"#353840"}}>📧 {cli.email}</div>}{cli.telefono&&<div style={{fontSize:10,color:"#353840"}}>📞 {cli.telefono}</div>}</div><div style={{textAlign:"right"}}><div style={{fontSize:9,color:"#5A6070"}}>Estado</div><div style={{fontSize:14,fontWeight:800,color:(ECLI[cli.estado]||{c:"#5A6070"}).c}}>{(ECLI[cli.estado]||{l:cli.estado||"-"}).l}</div>{cli.vendedor&&<div style={{fontSize:10,color:"#353840",marginTop:2}}>👤 {cli.vendedor}</div>}</div></div>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9,marginBottom:14}}>{[{l:"Ciudad",v:cli.ciudad||"-"},{l:"Pais",v:cli.pais||"-"},{l:"Fuente",v:cli.fuente||"-"},{l:"Linea negocio",v:cli.linea_negocio||"-"},{l:"Forma pago",v:cli.forma_pago||"-"},{l:"No. Contacto",v:cli.no_contacto||"-"}].map((f,i)=><div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}><div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{f.l}</div><div style={{fontSize:11,fontWeight:600}}>{f.v}</div></div>)}</div>
-            {oppsCliente.length>0&&<div style={{marginBottom:12}}><div style={{fontSize:10,color:"#5A6070",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:8}}>Oportunidades</div>{oppsCliente.map((o,i)=><div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"10px 12px",marginBottom:7}}><div style={{display:"flex",justifyContent:"space-between"}}><div><div style={{fontSize:11,fontWeight:700}}>{o.titulo}</div><div style={{fontSize:10,color:"#5A6070"}}>{o.etapa} · {o.probabilidad}%</div></div><div style={{fontSize:13,fontWeight:800,color:"#FFB930"}}>${(o.valor||0).toLocaleString()}</div></div></div>)}</div>}
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{(IND_CFG[cli.industria]||{icon:"🏢"}).icon} {cli.empresa}</h2><div style={{fontSize:11,color:"#5A6070"}}>{cli.contacto} · {cli.cargo}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:10,color:"#5A6070"}}>Total rentas</div><div style={{fontSize:20,fontWeight:800,color:"#FFB930"}}>{fmt(cli.valor_total)}</div></div></div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9,marginBottom:14}}>{[{l:"Estado",v:cli.estado,c:(ECLI[cli.estado]||{c:"#5A6070"}).c},{l:"Última actividad",v:`hace ${dDesde(cli.ultima_actividad)}d`,c:dDesde(cli.ultima_actividad)>30?"#FFB930":"#D4D8E8"},{l:"Opps activas",v:cli.opps_activas,c:"#3B9EFF"}].map((s,i)=><div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}><div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{s.l}</div><div style={{fontSize:16,fontWeight:800,color:s.c}}>{s.v}</div></div>)}</div>
             <button style={{width:"100%",padding:"9px",borderRadius:8,border:"1px dashed #1E2230",background:"transparent",color:"#5A6070",fontSize:11,cursor:"pointer"}}>+ Registrar actividad</button>
           </div>
         )}
@@ -534,45 +525,31 @@ function CRM() {
 }
 
 function Seguimiento() {
-  const [opps,setOpps]=useState([]);
-  const [loading,setLoading]=useState(true);
   const [sel,setSel]=useState(null);
-  const [search,setSearch]=useState("");
-  const opp=sel?opps.find(o=>o.id===sel):null;
-  useEffect(()=>{ cargarOpps(); },[]);
-  const cargarOpps=async()=>{ setLoading(true); const {data}=await supabase.from("oportunidades").select("*").not("etapa","in","(ganado,perdido)").order("ultimo_seguimiento",{ascending:true}).limit(200); if(data) setOpps(data); setLoading(false); };
-  const pipeline=opps.reduce((s,o)=>s+(o.valor||0),0);
-  const alertas=opps.filter(o=>dDesde(o.ultimo_seguimiento)>=2).length;
-  const filtered=opps.filter(o=>!search||[o.titulo,o.cliente,o.vendedor].filter(Boolean).some(v=>v.toLowerCase().includes(search.toLowerCase())));
-  const etCfg={cotizacion:{c:"#FFB930"},negociacion:{c:"#FF3B8B"},visita:{c:"#3B9EFF"},contacto:{c:"#8A8FA0"},seguimiento:{c:"#FF6B35"}};
+  const opp=sel?OPPS_DATA.find(o=>o.id===sel):null;
+
   return (
     <div style={{display:"flex",flex:1,overflow:"hidden"}}>
-      <div style={{width:280,borderRight:"1px solid #12151C",display:"flex",flexDirection:"column",background:"#080A10"}}>
-        <div style={{padding:"10px 12px",borderBottom:"1px solid #12151C"}}>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7,marginBottom:8}}>
-            <div style={{background:"#12151C",borderRadius:6,padding:"7px",textAlign:"center"}}><div style={{fontSize:13,fontWeight:800,color:"#FFB930"}}>${pipeline.toLocaleString()}</div><div style={{fontSize:9,color:"#5A6070"}}>Pipeline</div></div>
-            <div style={{background:alertas>0?"#FF444415":"#12151C",borderRadius:6,padding:"7px",textAlign:"center"}}><div style={{fontSize:16,fontWeight:800,color:alertas>0?"#FF4444":"#00E5A0"}}>{alertas}</div><div style={{fontSize:9,color:"#5A6070"}}>Sin seguimiento</div></div>
-          </div>
-          <input placeholder="Buscar oportunidad..." value={search} onChange={e=>setSearch(e.target.value)} style={{width:"100%",boxSizing:"border-box",background:"#12151C",border:"1px solid #1E2230",borderRadius:7,padding:"6px 10px",color:"#D4D8E8",fontSize:11,outline:"none"}}/>
-        </div>
+      <div style={{width:270,borderRight:"1px solid #12151C",display:"flex",flexDirection:"column",background:"#080A10"}}>
+        <div style={{padding:"10px 12px",borderBottom:"1px solid #12151C"}}><div style={{fontSize:10,color:"#5A6070"}}>OPORTUNIDADES +$10,000</div><div style={{fontSize:12,fontWeight:700,color:"#FFB930",marginTop:2}}>{fmt(OPPS_DATA.reduce((s,o)=>s+o.valor,0))} pipeline</div></div>
         <div style={{flex:1,overflowY:"auto"}}>
-          {loading?<div style={{padding:"20px",textAlign:"center",color:"#5A6070",fontSize:11}}>Cargando oportunidades...</div>:filtered.map(o=>{const dias=dDesde(o.ultimo_seguimiento);const alerta=dias>=2;const isSel=sel===o.id;const ec=etCfg[o.etapa]||{c:"#5A6070"};return(
-            <div key={o.id} onClick={()=>setSel(o.id)} style={{padding:"10px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?(alerta?"#FF4444":ec.c):"transparent"}`}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><div style={{flex:1,marginRight:6}}><div style={{display:"flex",alignItems:"center",gap:4}}><span style={{fontSize:11,fontWeight:700}}>{o.cliente}</span>{alerta&&<span style={{fontSize:8,background:"#FF444415",color:"#FF4444",padding:"1px 4px",borderRadius:4,fontWeight:800}}>!</span>}</div><div style={{fontSize:10,color:"#5A6070"}}>{o.titulo}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:12,fontWeight:800,color:"#FFB930"}}>${(o.valor||0).toLocaleString()}</div><div style={{fontSize:9,color:alerta?"#FF4444":"#5A6070"}}>{dias===0?"Hoy":"hace "+dias+"d"}</div></div></div>
-              <div style={{height:3,background:"#12151C",borderRadius:2,marginTop:4}}><div style={{width:(o.probabilidad||0)+"%",height:"100%",background:alerta?"#FF4444":ec.c,borderRadius:2}}/></div>
+          {OPPS_DATA.map(o=>{const dias=dDesde(o.ultimo_seguimiento);const alerta=dias>=2;const isSel=sel===o.id;return(
+            <div key={o.id} onClick={()=>setSel(o.id)} style={{padding:"11px 12px",borderBottom:"1px solid #0D0F14",cursor:"pointer",background:isSel?"#0D0F14":"transparent",borderLeft:`3px solid ${isSel?(alerta?"#FF4444":"#FF6B35"):"transparent"}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><div><div style={{display:"flex",gap:5,alignItems:"center"}}><span style={{fontSize:12,fontWeight:700}}>{o.cliente}</span>{alerta&&<span style={{fontSize:8,background:"#FF444415",color:"#FF4444",padding:"1px 4px",borderRadius:4,fontWeight:800}}>⚠️</span>}</div><div style={{fontSize:10,color:"#5A6070"}}>{o.titulo}</div></div><div style={{fontSize:13,fontWeight:800,color:"#FFB930"}}>{fmt(o.valor)}</div></div>
+              <div style={{height:3,background:"#12151C",borderRadius:2,marginTop:5}}><div style={{width:`${o.prob}%`,height:"100%",background:alerta?"#FF4444":"#FF6B35",borderRadius:2}}/></div>
             </div>
           );})}
         </div>
-        <div style={{padding:"7px 12px",borderTop:"1px solid #12151C",fontSize:9,color:"#5A6070",textAlign:"center"}}>{filtered.length} de {opps.length} oportunidades Supabase</div>
       </div>
       <div style={{flex:1,overflowY:"auto",padding:"18px"}}>
-        {!opp?(<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:"#1E2230"}}><div style={{fontSize:48}}>🎯</div><div style={{fontSize:13,fontWeight:700,marginTop:10,color:"#2A2D3A"}}>Selecciona una oportunidad</div><div style={{fontSize:11,color:"#1E2230",marginTop:4}}>{opps.length} oportunidades reales</div></div>):(
+        {!opp?(<div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:"#1E2230"}}><div style={{fontSize:48}}>🎯</div><div style={{fontSize:13,fontWeight:700,marginTop:10,color:"#2A2D3A"}}>Selecciona una oportunidad</div></div>):(
           <div>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><div><div style={{fontSize:9,color:"#FF6B35",fontWeight:800,letterSpacing:"0.1em",marginBottom:4}}>SEGUIMIENTO</div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{opp.titulo}</h2><div style={{fontSize:11,color:"#5A6070"}}>{opp.cliente}{opp.vendedor?" · 👤 "+opp.vendedor:""}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:22,fontWeight:800,color:"#FFB930"}}>${(opp.valor||0).toLocaleString()}</div><div style={{fontSize:11,color:"#FF6B35"}}>{opp.probabilidad||0}%</div>{opp.fecha_cierre&&<div style={{fontSize:10,color:"#5A6070"}}>{opp.fecha_cierre}</div>}</div></div>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}><div><h2 style={{margin:0,fontSize:17,fontWeight:800,marginBottom:3}}>{opp.titulo}</h2><div style={{fontSize:11,color:"#5A6070"}}>{opp.cliente} · {opp.vendedor}</div></div><div style={{textAlign:"right"}}><div style={{fontSize:22,fontWeight:800,color:"#FFB930"}}>{fmt(opp.valor)}</div><div style={{fontSize:11,color:"#FF6B35"}}>{opp.prob}%</div></div></div>
             {dDesde(opp.ultimo_seguimiento)>=2&&<div style={{background:"#FF444410",border:"1px solid #FF444430",borderRadius:9,padding:"12px 14px",marginBottom:14}}><div style={{fontSize:12,fontWeight:800,color:"#FF4444"}}>🚨 {dDesde(opp.ultimo_seguimiento)*24}h sin seguimiento</div></div>}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9,marginBottom:14}}>{[{l:"Tipo",v:opp.tipo||"-"},{l:"Modelo equipo",v:opp.modelo_equipo||"-"},{l:"No. Orden",v:opp.no_orden||"-"},{l:"Ultimo seguimiento",v:opp.ultimo_seguimiento||"-"},{l:"Motivo perdida",v:opp.motivo_perdida||"-"},{l:"Fase",v:opp.fase_zoho||"-"}].map((f,i)=><div key={i} style={{background:"#0C0E14",border:"1px solid #12151C",borderRadius:8,padding:"9px 11px"}}><div style={{fontSize:9,color:"#353840",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:3}}>{f.l}</div><div style={{fontSize:11,fontWeight:600}}>{f.v}</div></div>)}</div>
-            {["Cuando estima cerrar?","Como pagan?","Con quien mas cotizan?","Obstaculo para cerrar?","Presupuesto aprobado?"].map((p,i)=><div key={i} style={{marginBottom:9}}><div style={{fontSize:11,color:"#8A8FA0",marginBottom:4}}><span style={{color:"#FF6B35",marginRight:5}}>{i+1}.</span>{p}</div><input placeholder="Respuesta..." style={{width:"100%",boxSizing:"border-box",background:"#141720",border:"1px solid #1E2230",borderRadius:7,padding:"7px 10px",color:"#D4D8E8",fontSize:11,outline:"none"}}/></div>)}
-            <button style={{width:"100%",padding:"10px",borderRadius:8,border:"none",background:"linear-gradient(135deg,#FF6B35,#FF3B8B)",color:"#fff",fontSize:12,fontWeight:800,cursor:"pointer",marginTop:8}}>Guardar Seguimiento</button>
+            {["¿Cuándo estima cerrar?","¿Cómo pagan?","¿Con quién más cotizan?","¿Obstáculo para cerrar?","¿Presupuesto aprobado?"].map((p,i)=>(
+              <div key={i} style={{marginBottom:9}}><div style={{fontSize:11,color:"#8A8FA0",marginBottom:4}}><span style={{color:"#FF6B35",marginRight:5}}>{i+1}.</span>{p}</div><input placeholder="Respuesta..." style={{width:"100%",boxSizing:"border-box",background:"#141720",border:"1px solid #1E2230",borderRadius:7,padding:"7px 10px",color:"#D4D8E8",fontSize:11,outline:"none"}}/></div>
+            ))}
+            <button style={{width:"100%",padding:"10px",borderRadius:8,border:"none",background:"linear-gradient(135deg,#FF6B35,#FF3B8B)",color:"#fff",fontSize:12,fontWeight:800,cursor:"pointer",marginTop:8}}>🎯 Guardar Seguimiento →</button>
           </div>
         )}
       </div>
